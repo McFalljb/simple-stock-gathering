@@ -63,6 +63,7 @@ get_data_from_yahoo(False)
 n = 14
 
 ## used during the rsi calculation for max scalability
+
 def rma(x, n, y0):
     a = (n-1) / n
     ak = a**np.arange(len(x)-1, -1, -1)
@@ -103,3 +104,23 @@ def param():
 
 
 param()
+
+
+def volumediffone():
+
+    with open('sp500tickers.pickle', "rb") as f:
+        tickers = pickle.load(f)
+
+    for ticker in tickers:
+        df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
+        c = df.index[df['Volume_Pct_Change'] >= 1.2]
+
+        for idx in c:
+            #if not os.path.exists('stock_dfs/{}/{}{}.csv'.format(ticker, ticker, idx)):
+                #os.makedirs('stock_dfs/{}/{}{}.csv'.format(ticker, ticker, idx))
+
+            d = df.iloc[(idx - 7):(idx + 30)]
+            d.to_csv('stock_dfs/{}/{}{}.csv'.format(ticker, ticker, idx))
+
+
+volumediffone()
