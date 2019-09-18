@@ -47,16 +47,17 @@ def get_data_from_yahoo(reload_sp500=True):
         os.makedirs('stock_dfs')
 
     for ticker in tickers:
-        if not os.path.exists('stock_dfs/{}.csv'.format(ticker)):
+        if not os.path.exists('stock_dfs/{}/{}.csv'.format(ticker, ticker)):
+            os.makedirs('stock_dfs/{}'.format(ticker))
             df = pdr.get_data_yahoo(ticker, period='10y')
 
-            df.to_csv('stock_dfs/{}.csv'.format(ticker))
+            df.to_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
 
         else:
             print('Already have {}'.format(ticker))
 
 
-get_data_from_yahoo(True)
+get_data_from_yahoo(False)
 
 ## rsi out input
 n = 14
@@ -73,7 +74,7 @@ def param():
         tickers = pickle.load(f)
 
     for ticker in tickers:
-        df = pd.read_csv('stock_dfs/{}.csv'.format(ticker))
+        df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
 
         df['Volume_Diff'] = df['Volume'].diff().fillna(0)
         df['Adj_Close_Diff'] = df['Adj Close'].diff().fillna(0)
@@ -98,7 +99,7 @@ def param():
         df.drop(['Adj_Close_Diff', 'Volume_Diff'], 1, inplace=True)
 
         df.set_index('Date', inplace=True)
-        df.to_csv('stock_dfs/{}.csv'.format(ticker))
+        df.to_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
 
 
 param()
