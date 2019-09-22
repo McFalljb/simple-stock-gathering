@@ -92,8 +92,8 @@ def param():
         df['rsi_14'] = 100 - (100 / (1 + df.rs))
 
         ##Calculating BB
-        df['30 Day MA'] = df['Adj Close'].rolling(window=20).mean()
-        df['30 Day STD'] = df['Adj Close'].rolling(window=20).std()
+        df['30 Day MA'] = df['Adj Close'].rolling(window=30).mean()
+        df['30 Day STD'] = df['Adj Close'].rolling(window=30).std()
         df['Upper Band'] = df['30 Day MA'] + (df['30 Day STD'] * 2)
         df['Lower Band'] = df['30 Day MA'] - (df['30 Day STD'] * 2)
 
