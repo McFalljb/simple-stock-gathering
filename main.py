@@ -47,7 +47,7 @@ def get_data_from_yahoo(reload_sp500=True):
         os.makedirs('stock_dfs')
 
     for ticker in tickers:
-        if not os.path.exists('stock_dfs/{}/{}.csv'.format(ticker, ticker)):
+        if not os.path.exists('stock_dfs/{}'.format(ticker, ticker)):
             os.makedirs('stock_dfs/{}'.format(ticker))
             df = pdr.get_data_yahoo(ticker, period='10y')
 
@@ -115,12 +115,12 @@ def volumediffone():
         df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
         c = df.index[df['Volume_Pct_Change'] >= 1.2]
 
-        for idx in c:
-            #if not os.path.exists('stock_dfs/{}/{}{}.csv'.format(ticker, ticker, idx)):
-                #os.makedirs('stock_dfs/{}/{}{}.csv'.format(ticker, ticker, idx))
+        if not os.path.exists('VolumeDiff/{}'.format(ticker)):
+            os.makedirs('VolumeDiff/{}'.format(ticker))
 
+        for idx in c:
             d = df.iloc[(idx - 7):(idx + 30)]
-            d.to_csv('stock_dfs/{}/{}{}.csv'.format(ticker, ticker, idx))
+            d.to_csv('VolumeDiff/{}/{}{}.csv'.format(ticker, ticker, idx))
 
 
 volumediffone()
