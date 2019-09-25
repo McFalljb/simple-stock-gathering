@@ -33,9 +33,6 @@ def save_sp500_tickers():
     return tickers
 
 
-save_sp500_tickers()
-
-
 def get_data_from_yahoo(reload_sp500=True):
     if reload_sp500:
         tickers = save_sp500_tickers()
@@ -47,14 +44,17 @@ def get_data_from_yahoo(reload_sp500=True):
         os.makedirs('stock_dfs')
 
     for ticker in tickers:
-        if not os.path.exists('stock_dfs/{}'.format(ticker, ticker)):
-            os.makedirs('stock_dfs/{}'.format(ticker))
-            df = pdr.get_data_yahoo(ticker, period='10y')
+        if not os.path.exists('stock_dfs/{}/{}.csv'.format(ticker, ticker)):
 
+            os.makedirs('stock_dfs/{}'.format(ticker))
+            df = pdr.get_data_yahoo(ticker, period='10y', treads=True)
             df.to_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
 
         else:
-            print('Already have {}'.format(ticker))
+
+            dfnd = pdr.get_data_yahoo(ticker, period='1d', treads=True)
+            df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
+            df.append(dfnd, ignore_index=True)
 
 
 get_data_from_yahoo(False)
@@ -141,24 +141,24 @@ def irondiablo():
         else:
             print('Already have {}'.format(ticker))
 
-    df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
-    pd.options.mode.chained_assignment = None  # default='warn'
-    df30 = df.tail(30)
+        df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
+        pd.options.mode.chained_assignment = None  # default='warn'
+        df30 = df.tail(30)
 
-    df30.drop(['avg_gain', 'avg_loss', 'rs', 'rsi_14', 'gain', 'loss',
+        df30.drop(['avg_gain', 'avg_loss', 'rs', 'rsi_14', 'gain', 'loss',
                'Adj_Close_Pct_Change', 'Volume_Pct_Change',
                'Upper Band', 'Lower Band'], 1, inplace=True)
 
-    df30['irondiablo'] = (df30['30 Day STD'] / df30['30 Day MA']) * 100
-    a = df30['irondiabloemean'] = df30['irondiablo'].mean()
+        df30['irondiablo'] = (df30['30 Day STD'] / df30['30 Day MA']) * 100
+        a = df30['irondiabloemean'] = df30['irondiablo'].mean()
 
-    df30.to_csv('IronCondor/Tickers/{}/{}.csv'.format(ticker, ticker))
+        df30.to_csv('IronCondor/Tickers/{}/{}.csv'.format(ticker, ticker))
 
-    if a <= 1.5:
-        if not os.path.exists('IronCondor/Toplist/{}'.format(ticker)):
-            os.makedirs('IronCondor/Toplist/{}'.format(ticker))
+        if a <= 1.5:
+            if not os.path.exists('IronCondor/Toplist/{}'.format(ticker)):
+                os.makedirs('IronCondor/Toplist/{}'.format(ticker))
 
-        df30.to_csv('IronCondor/Toplist/{}/{}.csv'.format(ticker, ticker))
+            df30.to_csv('IronCondor/Toplist/{}/{}.csv'.format(ticker, ticker))
 
 
 irondiablo()
