@@ -59,10 +59,11 @@ def get_data_from_yahoo(reload_sp500=True):
 
 get_data_from_yahoo(False)
 
-## rsi out input
+# rsi out input
 n = 14
 
-## used during the rsi calculation for max scalability
+# used during the rsi calculation for max scalability
+
 
 def rma(x, n, y0):
     a = (n-1) / n
@@ -82,8 +83,7 @@ def param():
         df['Adj_Close_Pct_Change'] = df['Adj Close'].pct_change().fillna(0)
         df['Volume_Pct_Change'] = df['Volume'].pct_change().fillna(0)
 
-
-        ##Calculating RSI
+        # Calculating RSI
         df['gain'] = df.Adj_Close_Diff.mask(df.Adj_Close_Diff < 0, 0.0)
         df['loss'] = -df.Adj_Close_Diff.mask(df.Adj_Close_Diff > 0, -0.0)
         df.loc[n:, 'avg_gain'] = rma(df.gain[n + 1:].values, n, df.loc[:n, 'gain'].mean())
@@ -91,7 +91,7 @@ def param():
         df['rs'] = df.avg_gain / df.avg_loss
         df['rsi_14'] = 100 - (100 / (1 + df.rs))
 
-        ##Calculating BB
+        # Calculating BB
         df['30 Day MA'] = df['Adj Close'].rolling(window=30).mean()
         df['30 Day STD'] = df['Adj Close'].rolling(window=30).std()
         df['Upper Band'] = df['30 Day MA'] + (df['30 Day STD'] * 2)
@@ -117,6 +117,8 @@ def volumediffone():
 
         if not os.path.exists('VolumeDiff/{}'.format(ticker)):
             os.makedirs('VolumeDiff/{}'.format(ticker))
+        else:
+            print('Already have {}'.format(ticker))
 
         for idx in c:
             d = df.iloc[(idx - 7):(idx + 30)]
@@ -124,3 +126,39 @@ def volumediffone():
 
 
 volumediffone()
+
+
+def irondiablo():
+    with open('sp500tickers.pickle', "rb") as f:
+        tickers = pickle.load(f)
+
+        os.makedirs('IronCondor/Toplist')
+
+    for ticker in tickers:
+        if not os.path.exists('IronCondor/Tickers/{}'.format(ticker)):
+            os.makedirs('IronCondor/Tickers/{}'.format(ticker))
+
+        else:
+            print('Already have {}'.format(ticker))
+
+    df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
+    pd.options.mode.chained_assignment = None  # default='warn'
+    df30 = df.tail(30)
+
+    df30.drop(['avg_gain', 'avg_loss', 'rs', 'rsi_14', 'gain', 'loss',
+               'Adj_Close_Pct_Change', 'Volume_Pct_Change',
+               'Upper Band', 'Lower Band'], 1, inplace=True)
+
+    df30['irondiablo'] = (df30['30 Day STD'] / df30['30 Day MA']) * 100
+    a = df30['irondiabloemean'] = df30['irondiablo'].mean()
+
+    df30.to_csv('IronCondor/Tickers/{}/{}.csv'.format(ticker, ticker))
+
+    if a <= 1.5:
+        if not os.path.exists('IronCondor/Toplist/{}'.format(ticker)):
+            os.makedirs('IronCondor/Toplist/{}'.format(ticker))
+
+        df30.to_csv('IronCondor/Toplist/{}/{}.csv'.format(ticker, ticker))
+
+
+irondiablo()
