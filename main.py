@@ -53,8 +53,11 @@ def get_data_from_yahoo(reload_sp500=True):
         else:
 
             dfnd = pdr.get_data_yahoo(ticker, period='1d', treads=True)
-            df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
-            df.append(dfnd, ignore_index=True)
+            # dfnd.set_index('Date', inplace=True)
+            # df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
+            # df.concat(dfnd, ignore_index=True)
+            with open('stock_dfs/{}/{}.csv'.format(ticker, ticker), 'a') as f:
+                dfnd.to_csv(f, header=False)
 
 
 get_data_from_yahoo(False)
