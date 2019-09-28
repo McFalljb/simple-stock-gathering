@@ -8,6 +8,7 @@ import yfinance as yf
 import datetime as dt
 import os
 import pandas as pd
+import shutil
 from pandas_datareader import data as pdr
 yf.pdr_override()
 
@@ -60,7 +61,7 @@ def get_data_from_yahoo(reload_sp500=True):
                 dfnd.to_csv(f, header=False)
 
 
-get_data_from_yahoo(False)
+#get_data_from_yahoo(False)
 
 # rsi out input
 n = 14
@@ -114,14 +115,19 @@ def volumediffone():
     with open('sp500tickers.pickle', "rb") as f:
         tickers = pickle.load(f)
 
+    if os.path.exists('VolumeDiff'):
+        shutil.rmtree('VolumeDiff')
+
     for ticker in tickers:
         df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
+        #df.set_index('Date', inplace=True)
         c = df.index[df['Volume_Pct_Change'] >= 1.2]
 
         if not os.path.exists('VolumeDiff/{}'.format(ticker)):
             os.makedirs('VolumeDiff/{}'.format(ticker))
+
         else:
-            print('Already have {}'.format(ticker))
+            print('Already have {} for VolumeDiff'.format(ticker))
 
         for idx in c:
             d = df.iloc[(idx - 7):(idx + 30)]
@@ -135,14 +141,20 @@ def irondiablo():
     with open('sp500tickers.pickle', "rb") as f:
         tickers = pickle.load(f)
 
+    if not os.path.exists('IronCondor/Toplist'):
         os.makedirs('IronCondor/Toplist')
+
+    else:
+        shutil.rmtree('IronCondor')
+        os.makedirs('IronCondor/Toplist')
+
 
     for ticker in tickers:
         if not os.path.exists('IronCondor/Tickers/{}'.format(ticker)):
             os.makedirs('IronCondor/Tickers/{}'.format(ticker))
 
         else:
-            print('Already have {}'.format(ticker))
+            print('Already have {} for IronCondor'.format(ticker))
 
         df = pd.read_csv('stock_dfs/{}/{}.csv'.format(ticker, ticker))
         pd.options.mode.chained_assignment = None  # default='warn'
