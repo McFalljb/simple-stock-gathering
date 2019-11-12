@@ -61,7 +61,7 @@ def get_data_from_yahoo(reload_sp500=True):
                 dfnd.to_csv(f, header=False)
 
 
-#get_data_from_yahoo(False)
+get_data_from_yahoo(True)
 
 # rsi out input
 n = 14
